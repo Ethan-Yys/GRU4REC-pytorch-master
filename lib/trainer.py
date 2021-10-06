@@ -30,12 +30,8 @@ class Trainer(object):
             train_loss = self.train_epoch(epoch)
             loss, recall, mrr = self.evaluation.eval(self.eval_data, self.batch_size)
 
-            print("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(epoch,
-                                                                                                              train_loss,
-                                                                                                              loss,
-                                                                                                              recall,
-                                                                                                              mrr,
-                                                                                                              time.time() - st))
+            print("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(
+                epoch, train_loss, loss, recall, mrr, time.time() - st))
             checkpoint = {
                 'model': self.model,
                 'args': self.args,
@@ -45,9 +41,10 @@ class Trainer(object):
                 'recall': recall,
                 'mrr': mrr
             }
-            model_name = os.path.join(self.args.checkpoint_dir, "model_{0:05d}.pt".format(epoch))
-            torch.save(checkpoint, model_name)
-            print("Save model as %s" % model_name)
+            if epoch == end_epoch:
+                model_name = os.path.join(self.args.checkpoint_dir, "model_GRU4REC.pt")
+                torch.save(checkpoint, model_name)
+                print("Save model as %s" % model_name)
 
     def train_epoch(self, epoch):
         self.model.train()
@@ -61,10 +58,10 @@ class Trainer(object):
 
         hidden = self.model.init_hidden()
         dataloader = lib.DataLoader(self.train_data, self.batch_size)
-        #for ii,(data,label) in tqdm(enumerate(train_dataloader),total=len(train_data)):
+        # for ii,(data,label) in tqdm(enumerate(train_dataloader),total=len(train_data)):
         i = 0
         for ii, (input, target, mask) in tqdm(enumerate(dataloader),
-                                             total=len(dataloader.dataset.df)//self.batch_size , miniters=10):
+                                              total=len(dataloader.dataset.df) // self.batch_size, miniters=10):
             i += 1
             input = input.to(self.device)
             target = target.to(self.device)
@@ -76,7 +73,7 @@ class Trainer(object):
             loss = self.loss_func(logit_sampled)
             losses.append(loss.item())
             loss.backward()
-            if i == 3032 or i==1:
+            if i == 3032 or i == 1:
                 print(i)
             self.optim.step()
         print(i)
