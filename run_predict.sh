@@ -27,7 +27,7 @@ source ${activate_dir} py37_torch
 if [[ $opt == *t* ]]
 then
     # 训练阶段
-    feature_base="s3://mx-machine-learning/dongxinzhou/takatak/v2/feature/${YMD}"
+    feature_base="s3://mx-machine-learning/yuyisong/takatak/user_act_daily_intermediate/${YMD}"
     wait_s3_file ${feature_base}/feature_stat 18
     check_cmd $?
 
