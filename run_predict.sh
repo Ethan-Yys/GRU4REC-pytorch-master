@@ -9,7 +9,7 @@ fi
 if [ ! $YMD ]
 then
   #YMD=$(date +%Y%m%d -u)
-  YMD = $(date -d "-1 day" +%Y%m%d)
+  YMD=$(date -d "-1 day" +%Y%m%d)
 fi
 YMD_1D_AGO=$(date -d"yesterday ${YMD}" +%Y%m%d)
 # 加载shell tools辅助函数
