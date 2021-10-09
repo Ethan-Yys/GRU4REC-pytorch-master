@@ -1,3 +1,5 @@
+import json
+
 import lib
 import numpy as np
 import torch
@@ -24,12 +26,15 @@ class Prediction(object):
                 # for input, target, mask in dataloader:
                 input = input.to(self.device)
                 logit, hidden = self.model(input, hidden)
-                output = lib.infer_output(logit, k=self.topk)
+                score, output = lib.infer_output(logit, k=self.topk)
                 output = output.cpu().numpy().tolist()
+                score = score.cpu().numpy().tolist()
                 for idx in mask:
                     for i in range(len(output[idx])):
                         output[idx][i] = item_map_index[output[idx][i]]
-
-                    outputs.append([user_map_index[user_id[idx]], output[idx]])
+                    output_with_score_temp = []
+                    for i in zip(output[idx], score[idx]):
+                        output_with_score_temp.append(list(i))
+                    outputs.append(json.dumps([user_map_index[user_id[idx]], output_with_score_temp]))
 
         return outputs

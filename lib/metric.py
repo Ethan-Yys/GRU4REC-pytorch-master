@@ -58,5 +58,5 @@ def evaluate(indices, targets, k=20):
 
 
 def infer_output(indices, k=100):
-    _, indices = torch.topk(indices, k, -1)
-    return indices
+    score, indices = torch.topk(indices, k, -1)
+    return score, indices

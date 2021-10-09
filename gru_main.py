@@ -94,6 +94,22 @@ def init_model(model):
                     p.data.uniform_(0, sigma)
 
 
+def write_into_file(output, part_number=1000):
+    part_len = len(output) // part_number
+    part_remainder = len(output) % part_number
+    for i in range(part_number):
+        if i < part_remainder:
+            with open('predict_output/part-' + str(("%05d" % i)), 'w') as f:
+                for item in output[i * (part_len + 1):(i + 1) * (part_len + 1)]:
+                    f.write(item + "\n")
+        else:
+            with open('predict_output/part-' + str(("%05d" % i)), 'w') as f:
+                for item in output[
+                            part_remainder + i * part_len:
+                            part_remainder + (i + 1) * part_len]:
+                    f.write(item + "\n")
+
+
 def main():
     logging.info("Loading train data from {}".format(os.path.join(args.data_folder, args.train_data)))
     logging.info("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
@@ -149,7 +165,7 @@ def main():
             model.gru.flatten_parameters()
             predict = lib.Prediction(model, use_cuda=args.cuda, k=args.k_eval)
             outputs = predict.pred(valid_data, batch_size)
-            logging.info(outputs[0])
+            write_into_file(outputs)
         else:
             logging.error("No Pretrained Model was found!")
     '''

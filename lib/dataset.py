@@ -33,9 +33,19 @@ class Dataset(object):
         self.df = self.df[['SessionID', 'Time',
                            'ItemID', 'item_idx', 'SessionID_raw']]
         self.df.drop('SessionID_raw', axis=1, inplace=True)
+        self.df = self.df.reset_index(drop=True)
+        self.user_action_count = self.user_action_count_filter_func()
+        self.df = pd.merge(
+            self.df,
+            self.user_action_count,
+            on='SessionID',
+            how='inner')
+        self.df = self.df.groupby('SessionID', as_index=False).apply(lambda x: x[-50:]).reset_index(drop=True)
         self.click_offsets = self.get_click_offset()
         self.session_idx_arr = self.order_session_idx()
 
+
+        self.sss = 0
     def read_csv_gz(self, path, sep, session_key, item_key, time_key):
         paths = glob.glob(path)
         df_array = []
@@ -118,13 +128,22 @@ class Dataset(object):
             session_idx_arr = np.arange(self.df[self.session_key].nunique())
         return session_idx_arr
 
+    def user_action_count_filter_func(self):
+        """
+        筛选出用户行为>2的用户行为数统计，为与原始df做merge，去掉只有一个行为的数据
+        """
+        user_action_count = self.df.groupby('SessionID', as_index=False).count()[['SessionID', 'Time']]
+        user_action_count_filter = user_action_count[user_action_count['Time']>1][['SessionID']]
+        return  user_action_count_filter
+
+
     @property
     def items(self):
         return self.itemmap[self.item_key].unique()
 
 
 class DataLoader():
-    def __init__(self, dataset, batch_size=50, if_predict=None):
+    def __init__(self, dataset, batch_size=50, if_predict=False):
         """
         A class for creating session-parallel mini-batches.
 
@@ -156,23 +175,26 @@ class DataLoader():
         mask = []  # indicator for the sessions to be terminated
         finished = False
 
-        if self.if_predict:
-            mask = np.arange(len(iters))[(end - start) == 1]
-        while not finished:
-            minlen = (end - start).min()
-            # Item indices(for embedding) for clicks where the first sessions
-            # start
-            idx_target = df.item_idx.values[start]
+        # if self.if_predict:
+        #     mask = np.arange(len(iters))[(end - start) == 1]
 
-            if self.if_predict:
+        if self.if_predict:
+            while not finished:
+                minlen = (end - start).min()
+                # Item indices(for embedding) for clicks where the first sessions
+                # start
+                # idx_target = df.item_idx.values[start]
                 for i in range(minlen):
-                    idx_input = idx_target
-                    idx_target = df.item_idx.values[start + i + 1]
+                    # idx_input = idx_target
+                    # idx_target = df.item_idx.values[start + i + 1]
+                    now = start+i
+                    idx_input = df.item_idx.values[now]
                     input = torch.LongTensor(idx_input)
-                    user_id = df.SessionID.values[start + i]
+                    mask = np.arange(len(iters))[(end - now) == 1]
+                    user_id = df.SessionID.values[now]
                     yield input, mask, user_id
-                start = start + minlen
-                mask = np.arange(len(iters))[(end - start) <= 1]
+
+                start = now + 1
                 for idx in mask:
                     maxiter += 1
                     if maxiter >= len(click_offsets) - 1:
@@ -182,7 +204,12 @@ class DataLoader():
                     start[idx] = click_offsets[session_idx_arr[maxiter]]
                     end[idx] = click_offsets[session_idx_arr[maxiter] + 1]
 
-            else:
+        else:
+            while not finished:
+                minlen = (end - start).min()
+                # Item indices(for embedding) for clicks where the first sessions
+                # start
+                idx_target = df.item_idx.values[start]
                 for i in range(minlen - 1):
                     # Build inputs & targets
                     idx_input = idx_target
