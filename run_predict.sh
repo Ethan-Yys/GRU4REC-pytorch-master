@@ -54,7 +54,7 @@ then
     #gzip -d feature_data/train/*.gz
     #gzip -d feature_data/test/*.gz
 
-    python gru_main.py --checkpoint_dir model_saved --model_file_name gru4rec_${YMD}.pt --data_folder . --train_data feature_data/*.csv.gz
+    python gru_main.py --checkpoint_dir model_saved --model_file_name gru4rec_${YMD}.pt --train_data feature_data/*.csv.gz
     check_cmd $?
 
 

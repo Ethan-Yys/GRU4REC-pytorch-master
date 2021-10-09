@@ -114,7 +114,8 @@ def main():
     logging.info("Loading train data from {}".format(os.path.join(args.data_folder, args.train_data)))
     # logging.info("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
 
-    train_data = lib.Dataset(os.path.join(args.data_folder, args.train_data))
+    # train_data = lib.Dataset(os.path.join(args.data_folder, args.train_data))
+    train_data = lib.Dataset(args.train_data)
     # valid_data = lib.Dataset(os.path.join(args.data_folder, args.valid_data), itemmap=train_data.itemmap)
     make_checkpoint_dir()
 
