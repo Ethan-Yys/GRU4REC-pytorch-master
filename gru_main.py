@@ -41,7 +41,7 @@ parser.add_argument('--time_sort', default=False, type=bool)  # In case items ar
 parser.add_argument('--model_name', default='GRU4REC-CrossEntropy', type=str)
 parser.add_argument('--save_dir', default='models', type=str)
 parser.add_argument('--data_folder', default='./data', type=str)
-parser.add_argument('--train_data', default='./data/takatak_20210928/part-0001*.csv.gz', type=str)
+parser.add_argument('--train_data', default='./data/takatak_20210928/part-000*.csv.gz', type=str)
 parser.add_argument('--valid_data', default='takatak_20210928/part-0098*.csv.gz', type=str)
 parser.add_argument("--is_eval", action='store_true')  # should be used during testing and eliminated during training
 parser.add_argument('--load_model', default=None, type=str)
