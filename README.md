@@ -44,7 +44,7 @@ The project have a structure as below:
 │   │    ├── raw_data
 │   │    │    ├── yoochoose-clicks.dat
 │   ├── lib
-│   ├── main.py
+│   ├── gru_main.py
 │   ├── preprocessing.py
 │   ├── tool.py
 ```
@@ -54,12 +54,12 @@ In GRU4REC-pytorch
 
 Training 
 ```bash
-python main.py
+python gru_main.py
 ```
 
 Testing
 ```bash
-python main.py --is_eval --load_model checkpoint/CHECKPOINT#/model_EPOCH#.pt
+python gru_main.py --is_eval --load_model checkpoint/CHECKPOINT#/model_EPOCH#.pt
 ```
 ### List of Arguments accepted
 ```--hidden_size``` Number of Neurons per Layer (Default = 100) <br>

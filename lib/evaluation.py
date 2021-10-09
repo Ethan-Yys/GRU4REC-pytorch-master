@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
+
 class Evaluation(object):
     def __init__(self, model, loss_func, use_cuda, k=20):
         self.model = model
@@ -18,8 +19,10 @@ class Evaluation(object):
         dataloader = lib.DataLoader(eval_data, batch_size, if_predict=None)
         with torch.no_grad():
             hidden = self.model.init_hidden()
-            for ii, (input, target, mask) in tqdm(enumerate(dataloader), total=len(dataloader.dataset.df) // dataloader.batch_size, miniters = 10):
-            #for input, target, mask in dataloader:
+            for ii, (input, target, mask) in tqdm(enumerate(dataloader),
+                                                  total=len(dataloader.dataset.df) // dataloader.batch_size,
+                                                  miniters=10):
+                # for input, target, mask in dataloader:
                 input = input.to(self.device)
                 target = target.to(self.device)
                 logit, hidden = self.model(input, hidden)

@@ -4,6 +4,7 @@ import time
 import torch
 import numpy as np
 from tqdm import tqdm
+import logging
 
 
 class Trainer(object):
@@ -26,11 +27,11 @@ class Trainer(object):
 
         for epoch in range(start_epoch, end_epoch + 1):
             st = time.time()
-            print('Start Epoch #', epoch)
+            logging.info('Start Epoch #{}'.format(epoch))
             train_loss = self.train_epoch(epoch)
             loss, recall, mrr = self.evaluation.eval(self.eval_data, self.batch_size)
 
-            print("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(
+            logging.info("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(
                 epoch, train_loss, loss, recall, mrr, time.time() - st))
             checkpoint = {
                 'model': self.model,
@@ -42,9 +43,9 @@ class Trainer(object):
                 'mrr': mrr
             }
             if epoch == end_epoch:
-                model_name = os.path.join(self.args.checkpoint_dir, "model_GRU4REC.pt")
+                model_name = os.path.join(self.args.checkpoint_dir, self.args.model_file_name)
                 torch.save(checkpoint, model_name)
-                print("Save model as %s" % model_name)
+                logging.info("Save model as {}".format(model_name))
 
     def train_epoch(self, epoch):
         self.model.train()
@@ -73,8 +74,6 @@ class Trainer(object):
             loss = self.loss_func(logit_sampled)
             losses.append(loss.item())
             loss.backward()
-            if i == 3032 or i == 1:
-                print(i)
             self.optim.step()
         print(i)
         mean_losses = np.mean(losses)

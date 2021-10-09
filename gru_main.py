@@ -4,7 +4,10 @@ import lib
 import numpy as np
 import os
 import datetime
+import logging
 import glob
+
+logging.basicConfig(format="%(asctime)s %(name)s:%(levelname)s:%(message)s", level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hidden_size', default=100, type=int)  # Literature uses 100 / 1000 --> better is 100
@@ -38,11 +41,12 @@ parser.add_argument('--time_sort', default=False, type=bool)  # In case items ar
 parser.add_argument('--model_name', default='GRU4REC-CrossEntropy', type=str)
 parser.add_argument('--save_dir', default='models', type=str)
 parser.add_argument('--data_folder', default='./data', type=str)
-parser.add_argument('--train_data', default='takatak_20210928/*.csv.gz', type=str)
-parser.add_argument('--valid_data', default='valid/*.csv.gz', type=str)
+parser.add_argument('--train_data', default='takatak_20210928/part-0001*.csv.gz', type=str)
+parser.add_argument('--valid_data', default='takatak_20210928/part-0098*.csv.gz', type=str)
 parser.add_argument("--is_eval", action='store_true')  # should be used during testing and eliminated during training
 parser.add_argument('--load_model', default=None, type=str)
 parser.add_argument('--checkpoint_dir', type=str, default='checkpoint')
+parser.add_argument('--model_file_name', dest='model_file_name', default='model_GRU4REC', type=str)
 
 # Get the arguments
 args = parser.parse_args()
@@ -57,21 +61,22 @@ if args.cuda:
 
 # Write Checkpoints with arguments used in a text file for reproducibility
 def make_checkpoint_dir():
-    print("PARAMETER" + "-" * 10)
+    logging.info("PARAMETER" + "-" * 10)
     now = datetime.datetime.now()
-    S = '{:02d}{:02d}{:02d}{:02d}'.format(now.month, now.day, now.hour, now.minute)
-    save_dir = os.path.join(args.checkpoint_dir, S)
-    if not os.path.exists(args.checkpoint_dir):
-        os.mkdir(args.checkpoint_dir)
+    # S = '{:02d}{:02d}{:02d}{:02d}'.format(now.month, now.day, now.hour, now.minute)
+    # save_dir = os.path.join(args.checkpoint_dir, S)
+    save_dir = args.checkpoint_dir
+    # if not os.path.exists(args.checkpoint_dir):
+    #     os.mkdir(args.checkpoint_dir)
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-    args.checkpoint_dir = save_dir
+    # args.checkpoint_dir = save_dir
     with open(os.path.join(args.checkpoint_dir, 'parameter.txt'), 'w') as f:
         for attr, value in sorted(args.__dict__.items()):
-            print("{}={}".format(attr.upper(), value))
+            logging.info("{}={}".format(attr.upper(), value))
             f.write("{}={}\n".format(attr.upper(), value))
-    print("---------" + "-" * 10)
+    logging.info("---------" + "-" * 10)
 
 
 # weight initialization if it was defined
@@ -90,8 +95,8 @@ def init_model(model):
 
 
 def main():
-    print("Loading train data from {}".format(os.path.join(args.data_folder, args.train_data)))
-    print("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
+    logging.info("Loading train data from {}".format(os.path.join(args.data_folder, args.train_data)))
+    logging.info("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
 
     train_data = lib.Dataset(os.path.join(args.data_folder, args.train_data))
     valid_data = lib.Dataset(os.path.join(args.data_folder, args.valid_data), itemmap=train_data.itemmap)
@@ -130,12 +135,12 @@ def main():
         # trainer class
         trainer = lib.Trainer(model, train_data=train_data, eval_data=valid_data, optim=optimizer,
                               use_cuda=args.cuda, loss_func=loss_function, batch_size=batch_size, args=args)
-        print('#### START TRAINING....')
+        logging.info('#### START TRAINING....')
         trainer.train(0, n_epochs - 1)
 
     else:  # testing
         if args.load_model is not None:
-            print("Loading pre-trained model from {}".format(args.load_model))
+            logging.info("Loading pre-trained model from {}".format(args.load_model))
             try:
                 checkpoint = torch.load(args.load_model)
             except:
@@ -144,9 +149,9 @@ def main():
             model.gru.flatten_parameters()
             predict = lib.Prediction(model, use_cuda=args.cuda, k=args.k_eval)
             outputs = predict.pred(valid_data, batch_size)
-            print(outputs[0])
+            logging.info(outputs[0])
         else:
-            print("No Pretrained Model was found!")
+            logging.error("No Pretrained Model was found!")
     '''
     else: #testing
         if args.load_model is not None:
