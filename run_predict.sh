@@ -82,8 +82,7 @@ then
 
     # gzip -d predict_data/*.gz
 
-    python din_main.py --task predict --model_path model_saved_v2/din_${YMD}.pt --model_config model_config_v2.json \
-                        --predict_input_path predict_data_v2/ --predict_output_path predict_output_v2/ --batch_size 1024
+    python gru_main.py --checkpoint_dir model_saved --model_file_name gru4rec_${YMD}.pt --is_eval --load_model model_saved/gru4rec_${YMD}.pt
 
     check_cmd $?
 

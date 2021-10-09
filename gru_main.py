@@ -112,10 +112,10 @@ def write_into_file(output, part_number=1000):
 
 def main():
     logging.info("Loading train data from {}".format(os.path.join(args.data_folder, args.train_data)))
-    logging.info("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
+    # logging.info("Loading valid data from {}".format(os.path.join(args.data_folder, args.valid_data)))
 
     train_data = lib.Dataset(os.path.join(args.data_folder, args.train_data))
-    valid_data = lib.Dataset(os.path.join(args.data_folder, args.valid_data), itemmap=train_data.itemmap)
+    # valid_data = lib.Dataset(os.path.join(args.data_folder, args.valid_data), itemmap=train_data.itemmap)
     make_checkpoint_dir()
 
     # set all the parameters according to the defined arguments
@@ -149,7 +149,7 @@ def main():
         optimizer = lib.Optimizer(model.parameters(), optimizer_type=optimizer_type, lr=lr,
                                   weight_decay=weight_decay, momentum=momentum, eps=eps)
         # trainer class
-        trainer = lib.Trainer(model, train_data=train_data, eval_data=valid_data, optim=optimizer,
+        trainer = lib.Trainer(model, train_data=train_data, eval_data=train_data, optim=optimizer,
                               use_cuda=args.cuda, loss_func=loss_function, batch_size=batch_size, args=args)
         logging.info('#### START TRAINING....')
         trainer.train(0, n_epochs - 1)
@@ -164,7 +164,7 @@ def main():
             model = checkpoint["model"]
             model.gru.flatten_parameters()
             predict = lib.Prediction(model, use_cuda=args.cuda, k=args.k_eval)
-            outputs = predict.pred(valid_data, batch_size)
+            outputs = predict.pred(train_data, batch_size)
             write_into_file(outputs)
         else:
             logging.error("No Pretrained Model was found!")
