@@ -55,7 +55,7 @@ then
     #gzip -d feature_data/test/*.gz
 
     python gru_main.py --checkpoint_dir model_saved --model_file_name gru4rec_${YMD}.pt --train_data ./feature_data/\*.csv.gz \
-                    --embedding_dim 128
+                    --embedding_dim 128 --n_epochs 1
     check_cmd $?
 
 
