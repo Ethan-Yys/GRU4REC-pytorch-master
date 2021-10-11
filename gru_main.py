@@ -15,7 +15,7 @@ parser.add_argument('--num_layers', default=3, type=int)  # 1 hidden layer
 parser.add_argument('--batch_size', default=128, type=int)  # 50 in first paper and 32 in second paper
 parser.add_argument('--dropout_input', default=0, type=float)  # 0.5 for TOP and 0.3 for BPR
 parser.add_argument('--dropout_hidden', default=0.5, type=float)  # 0.5 for TOP and 0.3 for BPR
-parser.add_argument('--n_epochs', default=2, type=int)  # number of epochs (10 in literature)
+parser.add_argument('--n_epochs', default=1, type=int)  # number of epochs (10 in literature)
 parser.add_argument('--k_eval', default=100, type=int)  # value of K durig Recall and MRR Evaluation
 # parse the optimizer arguments
 parser.add_argument('--optimizer_type', default='Adagrad',
@@ -41,7 +41,7 @@ parser.add_argument('--time_sort', default=False, type=bool)  # In case items ar
 parser.add_argument('--model_name', default='GRU4REC-CrossEntropy', type=str)
 parser.add_argument('--save_dir', default='models', type=str)
 parser.add_argument('--data_folder', default='./data', type=str)
-parser.add_argument('--train_data', default='./data/takatak_20210928/part-000*.csv.gz', type=str)
+parser.add_argument('--train_data', default='./data/part-000*.csv.gz', type=str)
 parser.add_argument('--valid_data', default='takatak_20210928/part-0098*.csv.gz', type=str)
 parser.add_argument("--is_eval", action='store_true')  # should be used during testing and eliminated during training
 parser.add_argument('--load_model', default=None, type=str)

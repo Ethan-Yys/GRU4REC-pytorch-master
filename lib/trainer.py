@@ -29,18 +29,18 @@ class Trainer(object):
             st = time.time()
             logging.info('Start Epoch #{}'.format(epoch))
             train_loss = self.train_epoch(epoch)
-            loss, recall, mrr = self.evaluation.eval(self.eval_data, self.batch_size)
+            # loss, recall, mrr = self.evaluation.eval(self.eval_data, self.batch_size)
 
-            logging.info("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(
-                epoch, train_loss, loss, recall, mrr, time.time() - st))
+            # logging.info("Epoch: {}, train loss: {:.4f}, loss: {:.4f}, recall: {:.4f}, mrr: {:.4f}, time: {}".format(
+            #     epoch, train_loss, loss, recall, mrr, time.time() - st))
             checkpoint = {
                 'model': self.model,
                 'args': self.args,
                 'epoch': epoch,
                 'optim': self.optim,
-                'loss': loss,
-                'recall': recall,
-                'mrr': mrr
+                # 'loss': loss,
+                # 'recall': recall,
+                # 'mrr': mrr
             }
             if epoch == end_epoch:
                 model_name = os.path.join(self.args.checkpoint_dir, self.args.model_file_name)
